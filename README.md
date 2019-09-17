@@ -35,3 +35,29 @@ print(a.get('bar.fff', defualt='NotFound'))
 # NotFound
 
 ```
+
+
+* safely get `d['settings']['hello']['world']['world2']['world3']` which might not exist
+using python dict:
+```python
+
+
+def get_value(d, path, default=None):
+    v = d
+    for p in path:
+        v = v.get(p, None)
+
+        if (v is None) or (not isinstance(v, dict)):
+            return default
+    return v
+
+path = ['settings', 'hello', 'world', 'world2', 'world3']
+print(get_value(d, path, default=None)) 
+```
+
+using Map
+```python
+print(d.get('settings.hello.world.world2.world3', None))
+```
+
+
