@@ -22,4 +22,16 @@ print(a['bar.nnn.sd'])
 print(a['bar.mmm'])
 # 40
 
+print('bar.mmm' in a)
+# True
+
+print('bar.fff' in a)
+# False
+
+print(a.get('bar.mmm', default='NotFound'))
+# 40
+
+print(a.get('bar.fff', defualt='NotFound'))
+# NotFound
+
 ```
