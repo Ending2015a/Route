@@ -38,7 +38,10 @@ class Map(dict):
             elif not isinstance(super(Map, self).__getitem__(key), Map):
                 super(Map, self).__setitem__(key, Map())
 
-            super(Map, self).__getitem__(key).__setitem__(rem, item)
+            if isinstance(item, dict):
+                super(Map, self).__getitem__(key).__setitem__(rem, Map(item))
+            else:                
+                super(Map, self).__getitem__(key).__setitem__(rem, item)
 
     def __getitem__(self, key):
         key, rem = self.splitkey(key)
