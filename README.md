@@ -37,7 +37,7 @@ print(a.get('bar.fff', defualt='NotFound'))
 ```
 
 
-### safely get `d['settings']['hello']['world']['world2']['world3']` which might not exist
+#### safely get `d['settings']['hello']['world']['world2']['world3']` which might not exist
 * using python dict:
 ```python
 
