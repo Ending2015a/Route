@@ -37,8 +37,8 @@ print(a.get('bar.fff', defualt='NotFound'))
 ```
 
 
-* safely get `d['settings']['hello']['world']['world2']['world3']` which might not exist
-using python dict:
+### safely get `d['settings']['hello']['world']['world2']['world3']` which might not exist
+* using python dict:
 ```python
 
 
@@ -55,7 +55,7 @@ path = ['settings', 'hello', 'world', 'world2', 'world3']
 print(get_value(d, path, default=None)) 
 ```
 
-using Map
+* using Map
 ```python
 print(d.get('settings.hello.world.world2.world3', None))
 ```
