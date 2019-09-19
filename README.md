@@ -1,6 +1,6 @@
 # Map
 
-## Example
+## Example 1
 ```python
 a = Map(h=10, foo=20, bar={'nnn':{'sd':30}, 'mmm':40})
 
@@ -37,7 +37,8 @@ print(a.get('bar.fff', defualt='NotFound'))
 ```
 
 
-#### safely get `d['settings']['hello']['world']['world2']['world3']` which might not exist
+#### Example 2
+* safely get `d['settings']['hello']['world']['world2']['world3']` which might not exist
 * using python dict:
 ```python
 
@@ -61,3 +62,44 @@ print(d.get('settings.hello.world.world2.world3', None))
 ```
 
 
+#### Example 3
+* Nested dict
+* using python dict:
+```python
+d = dict({
+    'LayerA': {
+        'LayerB': {
+            'LayerC': {
+                'LayerD-1': {
+                    'LayerE': {
+                        'item1': 10,
+                        'item2': 20
+                    }
+                },
+                'LayerD-2': {
+                    'LayerE': {
+                        'LayerF': {
+                            'item3': 30,
+                            'item4': 40
+                        }
+                    }
+                }
+            }   
+        }
+    }
+})
+```
+
+* using Map
+```python
+d = Map({
+    'LayerA.LayerB.LayerC.LayerD-1.LayerE': {
+        'item1': 10,
+        'item2': 20,
+    },
+    'LayerA.LayerB.LayerC.LayerD-2.LayerE.LayerF': {
+        'item3': 30,
+        'item4': 40,
+    },
+})
+```
