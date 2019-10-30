@@ -41,19 +41,13 @@ class Route(dict):
             itr = iter(it)
 
         for k, v in itr:
+            # convert dict object to Route (if auto_convert_dict is enabled)
             if self._auto_convert_dict and isinstance(v, dict):
                 self.__setitem__(k, Route(v))
             else:
                 self.__setitem__(k, v)
 
     def __setitem__(self, key, item):
-
-        # terminate
-        #if self.terminate:
-        #    super(Route, self).__setitem__(key, item)
-        #    return
-
-        # no terminate
 
         key, rem = self.splitkey(key)
 
@@ -65,9 +59,8 @@ class Route(dict):
 
             elif not isinstance(super(Route, self).__getitem__(key), Route):
                 super(Route, self).__setitem__(key, Route())
-
-
             
+            # convert dict object to Route (if auto_convert_dict is enabled)
             if self._auto_convert_dict and isinstance(item, dict):
                 super(Route, self).__getitem__(key).__setitem__(rem, Route(item))
             else:                
@@ -75,12 +68,6 @@ class Route(dict):
 
     def __getitem__(self, key):
 
-        # terminate
-        #if self.terminate:
-        #    return super(Route, self).__getitem__(key)
-
-
-        # no terminate
         key, rem = self.splitkey(key)
 
         if rem is None:
@@ -90,12 +77,6 @@ class Route(dict):
 
     def __delitem__(self, key):
 
-        # terminate
-        #if self.terminate:
-        #    super(Route, self).__delitem__(key)
-        #    return
-
-        # no terminate
         key, rem = self.splitkey(key)
 
         if rem is None:
@@ -105,11 +86,6 @@ class Route(dict):
 
     def __contains__(self, key):
 
-        # terminate
-        #if self.terminate:
-        #    return super(Route, self).__contains__(key)
-
-        # no terminate
         key, rem = self.splitkey(key)
 
         if rem is None:
@@ -124,23 +100,45 @@ class Route(dict):
 
     def get(self, key, default=None):
 
-        # terminate
-        #if self.terminate:
-        #    return super(Route, self).get(key, default)
-
-        # no terminate
-
         key, rem = self.splitkey(key)
 
+        # end of Route
         if rem is None:
             return super(Route, self).get(key, default)
         else:
-            tmp = super(Route, self).get(key, default)
-            if tmp is not None:
-                return tmp.get(rem, default)
+            # not end of Route, check if the key exists
+            tmp = super(Route, self).get(key, None)
+            # if not exists, return default
+            if tmp is None:
+                return default
+            # if exists
             else:
-                return tmp
+                # if next Route exists
+                if isinstance(tmp, Route):
+                    return tmp.get(rem, default)
+                else:
+                    return default
 
+        return default
+
+    def pop(self, key, default=None):
+
+        key, rem = self.splitkey(key)
+
+        # end of Route
+        if rem is None:
+            return super(Route, self).pop(key, default)
+        else:
+            tmp = super(Route, self).pop(key, None)
+            if tmp is None:
+                return default
+            else:
+                if isinstance(tmp, Route):
+                    return tmp.pop(rem, default)
+                else:
+                    return default
+
+        return default
 
     # === custom function ===
 
@@ -153,25 +151,12 @@ class Route(dict):
         for k, v in self.items():
             
             if isinstance(v, Route):
-                #if v.terminate: # convert to dict type
-                #    v = dict(v)
-                #    v.__term__ = True
-                #    d[k] = dict(v)
-                #else:
                 for _k, _v in v.plain(sep=sep):
                     d[sep.join([k, _k])] = _v
             else:
                 d[k] = v
 
         return d.items()
-
-    #@property
-    #def terminate(self):
-    #    return self.__term__
-
-    #@terminate.setter
-    #def terminate(self, term: bool):
-    #    self.__term__ = term
 
     # === archive/restore ===
 
