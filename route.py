@@ -78,6 +78,19 @@ class Route(dict):
                     isinstance(super(Route, self).__getitem__(key), Route) and  # value is an instance of Route object
                     super(Route, self).__getitem__(key).__contains__(rem)) # remain keys are in the Route object
 
+    def plain(self):
+        d = {}
+        for k, v in self.items():
+            
+            if isinstance(v, Route):
+                for _k, _v in v.plain():
+                    d[self._sep.join([k, _k])] = _v
+
+            else:
+                d[k] = v
+
+        return d.items()
+
     def get(self, key, default=None):
         key, rem = self.splitkey(key)
 

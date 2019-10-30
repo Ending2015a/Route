@@ -79,6 +79,10 @@ config = {
 b = Route(config)
 pprint(b)
 
+print('print plain:')
+for k, v in b.plain():
+    print('{}: {}'.format(k, v))
+
 
 b['settings.cpu.number'] = 20
 b['hello'] = 'foobar'
