@@ -8,6 +8,7 @@ def pprint(d):
     print(json.dumps(d, indent=4))
 
 
+Route.set_sep('.')
 
 a = Route()
 
@@ -80,7 +81,7 @@ b = Route(config)
 pprint(b)
 
 print('print plain:')
-for k, v in b.plain():
+for k, v in b.plain('/'):
     print('{}: {}'.format(k, v))
 
 
@@ -94,3 +95,49 @@ print('* contains settings.gpu.number:', 'settings.gpu.number' in b)
 print('* contains settings.gpu.size:', 'settings.gpu.size' in b)
 print('* contains settings.tpu.number:', 'settings.tpu.number' in b)
 print('* contains settings.tpu:', 'settings.tpu' in b)
+
+
+
+# === test archive ===
+
+print('=======================')
+
+
+import numpy as np
+
+val = np.array([1.5, 2.5, 3.5], dtype=np.float32)
+val2 = np.array([1, 2, 3], dtype=np.int32)
+
+Route.set_sep('/')
+
+d = Route()
+
+class HelloMyClass:
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
+    def print(self):
+        print('args: {}'.format(self.args))
+        print('kwargs: {}'.format(self.kwargs))
+
+cc = HelloMyClass('abc', 'zz', 445, name='dfsA', _type='hhhhh')
+
+
+d['model/policy/val'] = val
+d['model/val'] = val2
+d['train/settings'] = cc
+
+
+print('\nThe structure of `d`:')
+print('    {}'.format(d))
+
+print('\nArchive d to `my_test.zip`')
+d.archive('my_test.zip')
+
+
+print('\nRestore `my_test.zip` and save to `a`')
+a = Route.restore('my_test.zip')
+
+print('\nThe structure of `a`: ')
+print('    {}'.format(a))
