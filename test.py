@@ -127,7 +127,8 @@ cc = HelloMyClass('abc', 'zz', 445, name='dfsA', _type='hhhhh')
 d['model/policy/val'] = val
 d['model/val'] = val2
 d['train/settings'] = cc
-
+d['test/text'] = 'test\ntest\ntext\nhello'
+d['test/bytes'] = '大家好'.encode('utf-8')
 
 print('\nThe structure of `d`:')
 print('    {}'.format(d))
@@ -141,3 +142,5 @@ a = Route.restore('my_test.zip')
 
 print('\nThe structure of `a`: ')
 print('    {}'.format(a))
+
+print('test/bytes: {}'.format(a['test/bytes'].decode('utf-8')))

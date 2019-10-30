@@ -413,6 +413,26 @@ except:
 set_default_serializer(pickle.dumps, '.pkl', overwrite=True)
 set_default_deserializer(pickle.loads, '.pkl', overwrite=True)
 
+# === str ===
+
+@Route.serializer(str, ext='.txt', overwrite=True)
+def str_serializer(string):
+    return string
+
+@Route.deserializer(str, ext='.txt', overwrite=True)
+def str_deserializer(serialized_string):
+    return serialized_string
+
+# === bytes ===
+
+@Route.serializer(bytes, ext='.bytes', overwrite=True)
+def bytes_serializer(byte_string):
+    return byte_string
+
+@Route.deserializer(bytes, ext='.bytes', overwrite=True)
+def bytes_deserializer(serialized_byte_string):
+    return serialized_byte_string
+
 
 # === numpy array ===
 
