@@ -1,6 +1,6 @@
 import json
 import traceback
-from map import Map
+from route import Route
 
 
 def pprint(d):
@@ -9,7 +9,7 @@ def pprint(d):
 
 
 
-a = Map()
+a = Route()
 
 # add item
 
@@ -76,7 +76,7 @@ config = {
 }
 
 
-b = Map(config)
+b = Route(config)
 pprint(b)
 
 

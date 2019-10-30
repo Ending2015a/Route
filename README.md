@@ -1,8 +1,8 @@
-# Map
+# Route
 
 ## Example 1
 ```python
-a = Map(h=10, foo=20, bar={'nnn':{'sd':30}, 'mmm':40})
+a = Route(h=10, foo=20, bar={'nnn':{'sd':30}, 'mmm':40})
 
 print(a['h'])
 # 10
@@ -56,7 +56,7 @@ path = ['settings', 'hello', 'world', 'world2', 'world3']
 print(get_value(d, path, default=None)) 
 ```
 
-* using Map
+* using Route
 ```python
 print(d.get('settings.hello.world.world2.world3', None))
 ```
@@ -90,7 +90,7 @@ d = dict({
 })
 ```
 
-* using Map
+* using Route
 ```python
 d = Map({
     'LayerA.LayerB.LayerC.LayerD-1.LayerE': {

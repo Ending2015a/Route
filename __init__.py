@@ -1,3 +1,3 @@
-from .map import Map
+from .route import Route
 
-__all__ = [Map.__name__]
+__all__ = [Route.__name__]
