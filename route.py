@@ -5,11 +5,11 @@ import logging
 
 
 class Route(dict):
-    _sep = '/'
+    _sep = '.'
     _auto_convert_dict = True
 
     @classmethod
-    def set_sep(cls, sep='/'):
+    def set_sep(cls, sep='.'):
         cls._sep = sep
 
     # === Override dict ===
@@ -54,16 +54,27 @@ class Route(dict):
         if rem is None:
             super(Route, self).__setitem__(key, item)
         else:
+            # --- handle keys ---
+            # key does not exist, create new
             if not key in super(Route, self).keys():
                 super(Route, self).__setitem__(key, Route())
 
-            elif not isinstance(super(Route, self).__getitem__(key), Route):
-                super(Route, self).__setitem__(key, Route())
-            
+            # key exists, but value is not an instance of Route. Overwrite if self._auto_convert_dict == True
+            elif self._auto_convert_dict and (not isinstance(super(Route, self).__getitem__(key), Route)):
+                # if it is an instance of dict, convert to Route
+                if isinstance(super(Route, self).__getitem__(key), dict):
+                    super(Route, self).__setitem__(key, Route(super(Route, self).__getitem__(key)))
+
+            # --- handle items ---
+            # not subscriptable
+            # for example, key conflict: 'AAA/BBB/CCC' is not a dict, but 'AAA/BBB/CCC/DDD' assigned
+            if not hasattr(super(Route, self).__getitem__(key), '__setitem__'):
+                raise TypeError('\'{}\' object for key \'{}\' does not support item assignment'.format(type(super(Route, self).__getitem__(key)).__name__, key))
+
             # convert dict object to Route (if auto_convert_dict is enabled)
             if self._auto_convert_dict and isinstance(item, dict):
                 super(Route, self).__getitem__(key).__setitem__(rem, Route(item))
-            else:                
+            else:
                 super(Route, self).__getitem__(key).__setitem__(rem, item)
 
     def __getitem__(self, key):
@@ -73,6 +84,8 @@ class Route(dict):
         if rem is None:
             return super(Route, self).__getitem__(key)
         else:
+            if not hasattr(super(Route, self).__getitem__(key), '__getitem__'):
+                raise TypeError('\'{}\' object for key \'{}\' is not subscriptable'.format(type(super(Route, self).__getitem__(key)).__name__, key))
             return super(Route, self).__getitem__(key).__getitem__(rem)
 
     def __delitem__(self, key):
@@ -82,6 +95,8 @@ class Route(dict):
         if rem is None:
             super(Route, self).__delitem__(key)
         else:
+            if not hasattr(super(Route, self).__getitem__(key), '__delitem__'):
+                raise TypeError('\'{}\' object for key \'{}\' does not support item deletion'.format(type(super(Route, self).__getitem__(key)).__name__, key))
             super(Route, self).__getitem__(key).__delitem__(rem)
 
     def __contains__(self, key):
@@ -91,12 +106,9 @@ class Route(dict):
         if rem is None:
             return super(Route, self).__contains__(key)
         else:
-            return (super(Route, self).__contains__(key) and   # contains key 
-                    isinstance(super(Route, self).__getitem__(key), Route) and  # value is an instance of Route object
-                    super(Route, self).__getitem__(key).__contains__(rem)) # remain keys are in the Route object
-
-
-
+            return (super(Route, self).__contains__(key) and   # contains key in current layer
+                    isinstance(super(Route, self).__getitem__(key), dict) and  # value is an instance of dict
+                    super(Route, self).__getitem__(key).__contains__(rem)) # remain keys exist in the next layer of dict object
 
     def get(self, key, default=None):
 
@@ -143,6 +155,36 @@ class Route(dict):
     # === custom function ===
 
     def plain(self, sep=None):
+        '''
+        Plain dict using given sep
+
+        d = Route({
+            'AAA': {
+                'BBB': {
+                    'CCC': {
+                        'item1': 10,
+                        'item2': 20,
+                    },
+                    'DDD': {
+                        'item3': 30,
+                        'item4': 40,
+                    }
+                }
+            }
+        })
+
+        print(type(d.plain()))
+
+        for k, v in d.plain(sep='.'):
+            print('{}: {}'.format(k, v))
+
+        # This will print out:
+        # <class 'dict'>
+        # AAA.BBB.CCC.item1: 10
+        # AAA.BBB.CCC.item2: 20
+        # AAA.BBB.DDD.item3: 30
+        # AAA.BBB.DDD.item4: 40
+        '''
 
         if sep is None:
             sep = self._sep
@@ -151,6 +193,7 @@ class Route(dict):
         for k, v in self.items():
             
             if isinstance(v, Route):
+                # recursive call
                 for _k, _v in v.plain(sep=sep):
                     d[sep.join([k, _k])] = _v
             else:
@@ -264,6 +307,21 @@ class Route(dict):
     _serialize_ext = {}
     _deserialize_ext = {}
 
+    @classmethod
+    def serialize(self, value):
+        serializer, _ = self._get_serializer_with_ext(type(value))
+
+        return serializer(value)
+
+
+    @classmethod
+    def deserialize(self, class_type, value):
+        deserializer = self._deserializer.get(class_type, None)
+
+        if deserializer is None:
+            deserializer = self._deserializer[Route]
+
+        return deserializer(value)
 
     @classmethod
     def _get_serializer_with_ext(self, class_type):
@@ -318,23 +376,79 @@ class Route(dict):
             ext = '.' + ext
 
         # check whether ext is in use by other class
-        if ext in cls._deserialize_ext:
+        if (ext in cls._deserialize_ext) and (not overwrite):
             raise RuntimeError('The extension `{}` is already in use by class `{}`'.format(ext, cls._deserialize_ext[ext].__name__))
 
         cls._deserializer[class_type] = deserialize_func
         cls._deserialize_ext[ext] = class_type
 
+
+    @classmethod
+    def serializable(cls, ext, overwrite=False):
+        '''
+
+        Class decorator
+
+        example usage:
+
+            @Route.serializable(ext='.my_list')
+            class MyList():
+                def __init__(self):
+                    ...
+                # your
+                # class
+                # definition
+                
+            @MyList.serializer(overwrite=True)
+            def my_serializer(value):
+                ...
+
+                return serialized_value  # either str or bytes
+
+            @MyList.deserializer(overwrite=True)
+            def my_deserializer(serialied_value):
+                ...
+
+                return MyList(value)
+        '''
+        def _cls_serializable(class_type):
+            @staticmethod
+            def set_serializer(overwrite=overwrite):
+                def _serializer(func):
+                    cls.set_serializer(class_type, func, ext, overwrite)
+                    class_type.serialize = staticmethod(func)
+                    return func
+                return _serializer
+
+            @staticmethod
+            def set_deserializer(overwrite=overwrite):
+                def _deserializer(func):
+                    cls.set_deserializer(class_type, func, ext, overwrite)
+                    class_type.deserialize = staticmethod(func)
+                    return func
+                return _deserializer
+
+            class_type.set_serializer = set_serializer
+            class_type.set_deserializer = set_deserializer
+
+            return class_type
+
+        return _cls_serializable
+            
+
     # decorator
     @classmethod
     def serializer(cls, class_type, ext, overwrite=False):
         '''
+        Function decorator
+
         example usage:
 
-            @Route.serializer(MyClass, ext='.mcls', overwrite=True)
-            def my_class_serializer(value):
+            @Route.serializer(MyList, ext='.my_list', overwrite=True)
+            def my_list_serializer(my_list):
             
-                if isinstance(value, MyClass):
-                    serialized_value = value.my_serializing_method()
+                if isinstance(my_list, MyList):
+                    serialized_value = my_list.my_serializing_method()
                 else:
                     raise Exception('Error')
 
@@ -349,12 +463,14 @@ class Route(dict):
     @classmethod
     def deserializer(cls, class_type, ext, overwrite=False):
         '''
+        Function decorator
+
         example usage:
 
-            @Route.deserializer(MyClass, ext='.mcls', overwrite=True)
-            def my_class_deserializer(serialized_value):
+            @Route.deserializer(MyList, ext='.my_list', overwrite=True)
+            def my_list_deserializer(serialized_value):
 
-                value = MyClass.my_deserializing_method(serialized_value)
+                value = MyList.my_deserializing_method(serialized_value)
 
                 return value
         '''
