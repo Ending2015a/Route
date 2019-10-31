@@ -233,12 +233,51 @@ a = Route.restore('my_route.zip')
 print(a)   # {'AAA': {'BBB': 10, 'CCC': 20, 'DDD': {'EEE': 30}}}
 ```
 
+And the structure of the zip file will be:
+```
+my_route
+└── AAA
+    ├── BBB.pkl
+    ├── CCC.pkl
+    └── DDD
+        └── EEE.pkl
+```
+
 The serialization methods for below types have already been implemented:
 * `np.ndarray` (save as .npy)
 * `str` (.txt)
 * `bytes` (.bytes)
 
-By default, one of the libs, [dill](https://github.com/uqfoundation/dill.git), [cloudpickle](https://github.com/cloudpipe/cloudpickle.git), or build-in pickle lib is chosen as the default serialization method for other types. But, you can also implement your own serialization method for your classes.
+By default, one of the libs, [dill](https://github.com/uqfoundation/dill.git), [cloudpickle](https://github.com/cloudpipe/cloudpickle.git), or build-in pickle lib is chosen as the default serialization method for other types. However, you can also implement your serialization method for your custom classes! See [Customize serializer/deserializer]()
+
+A more complicated example:
+```python
+from route import Route
+Route.set_sep('/')
+import numpy as np
+
+arr01 = np.array([1, 2, 3])
+arr02 = np.array([4, 5, 6])
+
+d = Route({'AAA/BBB': arr01, 'AAA/CCC': 'foo', 'AAA/DDD/EEE': arr02, 'AAA/DDD/FFF': '大家好'.encode('utf-8')})
+print(d)
+
+d.archive('my_route.zip')
+
+a = Route.restore('my_route.zip')
+print(a)
+```
+
+The structure of zip file will be:
+```
+my_route
+└── AAA
+    ├── BBB.npy
+    ├── CCC.txt
+    └── DDD
+        ├── EEE.npy
+        └── FFF.bytes
+```
 
 
 ### 2. Customize serializer/deserializer
