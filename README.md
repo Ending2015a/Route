@@ -162,7 +162,7 @@ print(d.get('AAA/BBB/CCC/DDD/EEE', 'NotFound'))   # NotFound
 ```
 
 
-## Advance features
+## Advanced features
 
 ### 1. Auto conversion
 When you assign a dict instance to the Route object, the dict will be automatically converted into a Route object:
