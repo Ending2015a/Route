@@ -248,7 +248,7 @@ The serialization methods for below types have already been implemented:
 * `str` (.txt)
 * `bytes` (.bytes)
 
-By default, one of the libs, [dill](https://github.com/uqfoundation/dill.git), [cloudpickle](https://github.com/cloudpipe/cloudpickle.git), or build-in pickle lib is chosen as the default serialization method for other types. However, you can also implement your serialization method for your custom classes! See [Customize serializer/deserializer]()
+By default, one of the libs, [dill](https://github.com/uqfoundation/dill.git), [cloudpickle](https://github.com/cloudpipe/cloudpickle.git), or build-in pickle lib is chosen as the default serialization method for other types. However, you can also implement your serialization method for your custom classes! Please refer to [Customize serializer/deserializer](#2-customize-serializerdeserializer)
 
 A more complicated example:
 ```python
