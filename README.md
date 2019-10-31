@@ -28,7 +28,7 @@ print(a)     # {'a': 10, 'b': 20, 'AAA': {'BBB': {'CCC': 30, 'DDD': 40}}}
 print(a['AAA/BBB'])  # {'CCC': 30, 'DDD': 40}
 
 # get item or default value
-print(a['AAA/BBB'].get('DDD', 'NotFound'))   # 40
+print(a.get('AAA/BBB/DDD', 'NotFound'))   # 40
 
 # get item or default value
 print(a.get('AAA/BBB/EEE', 'NotFound'))   # NotFound
