@@ -190,6 +190,30 @@ d['AAA/BBB/CCC-2'] = {
 If you want to disable this feature, you can set `Route._auto_convert_dict = False`.
 
 
+```python
+from route import Route
+from collections import OrderedDict
+
+# OrderedDict will be converted into Route
+d = Route({'unordered': OrderedDict()})
+
+print(type(d['unordered']))   # route.Route
+
+# set to False
+Route._auto_convert_dict = False
+
+
+d = Route({'ordered': OrderedDict()})
+
+print(type(d['ordered']))     # collections.OrderedDict
+
+d['ordered.aaa'] = 1
+d['ordered.bbb'] = 2
+d['ordered.ccc'] = 3
+
+print(d)   # {'ordered': OrderedDict([('aaa', 1), ('bbb', 2), ('ccc', 3)])}
+```
+
 
 
 ### 2. Archive
