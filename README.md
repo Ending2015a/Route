@@ -243,12 +243,12 @@ my_route
         └── EEE.pkl
 ```
 
-The serialization methods for below types have already been implemented:
+The serialization methods for below types have already been defined:
 * `np.ndarray` (save as .npy)
 * `str` (.txt)
 * `bytes` (.bytes)
 
-By default, one of the libs, [dill](https://github.com/uqfoundation/dill.git), [cloudpickle](https://github.com/cloudpipe/cloudpickle.git), or build-in pickle lib is chosen as the default serialization method for other types. However, you can also implement your serialization method for your custom classes! Please refer to [Customize serializer/deserializer](#2-customize-serializerdeserializer)
+By default, pickle is the default serialization method for other undefined types. One of the packages, [dill](https://github.com/uqfoundation/dill.git), [cloudpickle](https://github.com/cloudpipe/cloudpickle.git), or build-in pickle is chosen as the default serialization method for other types, and which one to use depends on your platform. However, you can also implement your serialization method for your custom classes! Please refer to [Customize serializer/deserializer](#2-customize-serializerdeserializer)
 
 A more complicated example:
 ```python
@@ -335,7 +335,7 @@ d = Route({
 d.archive('my_archive.zip')
 ```
 
-Re-use the serialization methods:
+If you want to re-use the serialization methods, you can simply call the static method `serialize` and `deserialize` attached on your serializable classes:
 ```python
 ints = MyIntList(5, 6, 7, 8, 9)
 serialized = MyIntList.serialize(ints)
@@ -395,11 +395,11 @@ d = Route({
 d.archive('my_archive.zip')
 ```
 
-* Re-use the serialization methods:
+In this way, you can call `serialize` and `deserialize` method attached on Route to re-use the serialization methods:
 ```python
 ints = MyIntList(5, 6, 7, 8, 9)
 serialized = Route.serialize(ints)
 
 print(serialized)
-print(Route.deserialize(MyIntList, serialized))
+print(Route.deserialize(MyIntList, serialized))  # you must pass the class type as the first argument.
 ```
