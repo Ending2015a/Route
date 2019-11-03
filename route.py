@@ -202,19 +202,56 @@ class Route(dict):
         return d.items()
 
     # === archive/restore ===
+    
+    def _process_filename(self, filename, _type):
+        # filename
+        if isinstance(filename, str):
+            
+            _, ext = os.path.splitext(filename)
+            
+            if _type is None:
+                
+                _type = ext
+                
+                # filename no extension
+                if not _type:  
+                    _type = '.zip'     # use default type: zip
+            else:
+                if not _type.startswith('.'):
+                    _type = '.' + _type
+            
+            # filename no extension
+            if not ext:
+                filename += _type
+
+        # file pointer
+        else:
+            if not _type:
+                _type = '.zip'
+            
+            if not _type.startswith('.'):
+                _type = '.' + _type
+            
+        return filename, _type
+        
+    def _file_context(self, filename, mode, **kwargs):
+    
+        # === import ===
+        import zipfile
+        
+        # filename
+        if isinstance(filename, str):
+            return zipfile.ZipFile(filename, mode, **kwargs)
+        # file pointer
+        else:
+            return filename
 
     def archive_zip(self, filename, mode='w', **kwargs):
         
         # === import ===
         import zipfile
-
-        _, ext = os.path.splitext(filename)
-
-        if not ext:
-            filename += '.zip'
-
         
-        with zipfile.ZipFile(filename, mode, **kwargs) as zf:
+        with self._file_context(filename, mode, **kwargs) as zf:
             for k, v in self.plain('/'):
 
                 # retrieve serializer and ext
@@ -234,14 +271,7 @@ class Route(dict):
         :param _type: archive type, must be one of ['zip']
         '''
 
-        if _type is None:
-            _, _type = os.path.splitext(filename)
-
-            if not _type:
-                _type = '.zip'
-        else:
-            if not _type.startswith('.'):
-                _type = '.' + _type
+        filename, _type = self._process_filename(filename, _type)
             
 
         if _type == '.zip':
@@ -251,13 +281,18 @@ class Route(dict):
 
     @classmethod
     def restore_zip(self, filename, mode='r', **kwargs):
+        '''
+        Restore Route from zipped file
+        
+        :param filename: (str or file pointer)
+        '''
         
         # === import ===
         import zipfile
 
         route = self()
 
-        with zipfile.ZipFile(filename, mode) as zf:
+        with self._file_context(filename, mode, **kwargs) as zf:
             for name in zf.namelist():
                 if name.endswith('/'):
                     continue
@@ -284,15 +319,7 @@ class Route(dict):
         :param _type: archive type.
         '''
 
-        if _type is None:
-            _, _type = os.path.splitext(filename)
-
-            if not _type:
-                _type = '.zip'
-
-        else:
-            if not _type.startswith('.'):
-                _type = '.' + _type
+        filename, _type = self._process_filename(filename, _type)
 
         if _type == '.zip':
             return self.restore_zip(filename, **kwargs)
