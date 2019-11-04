@@ -335,15 +335,36 @@ class Route(dict):
     _deserialize_ext = {}
 
     @classmethod
-    def serialize(self, value):
+    def serialize(self, value, class_type=None):
+        '''
+        Serialize value
+
+        :param value: value
+        :param class_type: the class type of given value. If set to None, type(value) will be used. 
+                        If no serializer for corresponding class_type being found, then use default serializer.
+        '''
+
+        if class_type is None:
+            class_type = type(value)
+
         serializer, _ = self._get_serializer_with_ext(type(value))
 
         return serializer(value)
 
 
     @classmethod
-    def deserialize(self, class_type, value):
-        deserializer = self._deserializer.get(class_type, None)
+    def deserialize(self, value, class_type=None):
+        '''
+        Deserialize value
+
+        :param value: value
+        :param class_type: the class type of given value. If set to None, default deserilaizer will be used.
+        '''
+
+        if class_type is not None:
+            deserializer = self._deserializer.get(class_type, None)
+        else:
+            deserializer = None
 
         if deserializer is None:
             deserializer = self._deserializer[Route]

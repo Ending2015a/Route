@@ -398,8 +398,8 @@ d.archive('my_archive.zip')
 In this way, you can call `serialize` and `deserialize` method attached on Route to re-use the serialization methods:
 ```python
 ints = MyIntList(5, 6, 7, 8, 9)
-serialized = Route.serialize(ints)
+serialized = Route.serialize(ints, MyIntList)
 
 print(serialized)
-print(Route.deserialize(MyIntList, serialized))  # you must pass the class type as the first argument.
+print(Route.deserialize(serialized, MyIntList))  # you must pass the class type as the first argument.
 ```
