@@ -530,9 +530,6 @@ class Route(dict):
 
 # === global ===
 
-def set_sep(sep='.'):
-    Route._sep = sep
-
 def set_default_serializer(serialize_func, ext, overwrite=False):
 
     Route.set_serializer(Route, serialize_func, ext, overwrite)
