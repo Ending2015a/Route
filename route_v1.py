@@ -9,6 +9,8 @@ import logging
 
 # --- my module ---
 
+print('route_v1 is deprecated, please use route_v2 instead')
+
 class Route(dict):
     _sep = '.'
     _auto_convert_dict = True
