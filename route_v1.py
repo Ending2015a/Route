@@ -9,7 +9,7 @@ import logging
 
 # --- my module ---
 
-print('route_v1 is deprecated, please use route_v2 instead')
+print('WARN: route_v1 is deprecated, please use route_v2 instead')
 
 class Route(dict):
     _sep = '.'
