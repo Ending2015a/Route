@@ -12,15 +12,20 @@ import logging
 
 def _retrieve_outer_frame(outer=2, not_start_with=None):
     frame = inspect.currentframe()
-    if outer is not None:
+    if not_start_with is None:
         for i in range(outer):
             frame = frame.f_back
             if frame is None:
                 break
-    elif not_start_with is not None:
-        while True:
-            frame = frame.f_back
-            if (frame is not None) and (not frame.f_code.co_filename.startswith(not_start_with)):
+    else:
+        for i in range(outer):
+            while True:
+                frame = frame.f_back
+                if (frame is None):
+                    break
+                elif (not frame.f_code.co_filename.startswith(not_start_with)):
+                    break
+            if (frame is None):
                 break
 
     if frame is not None:
@@ -33,7 +38,7 @@ def _retrieve_outer_frame(outer=2, not_start_with=None):
 
     return frame
 
-frame = _retrieve_outer_frame(outer=None, not_start_with='<frozen importlib')
+frame = _retrieve_outer_frame(not_start_with='<frozen importlib')
 if frame is not None:
     print('WARNING:route:From {}:{}: route_v1 is deprecated (from route.route_v1), please use route_v2 insead.'.format(
                                                                         frame['filename'], frame['lineno']))
